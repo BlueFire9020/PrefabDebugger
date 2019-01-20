@@ -6,7 +6,7 @@
 * Raycasting objects to view their components
 * Reordering parents of objects
 * Adding/Removing objects and their components
-* Show selected in hierarchy
+* ~~Show selected in hierarchy~~
 * Add support for more components
 * Change key to be a single function key
 * Make the UI look much better (it sucks)

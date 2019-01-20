@@ -17,14 +17,16 @@ namespace BlueFire.Debugger
     {
 
         //THINGS I NEED TO ADD
+
         //Raycasting objects to view their components (in game highlighting of the object would be cool)
         //Reordering parents of objects
         //Adding/Removing objects and their components
         //Show selected in hierarchy
         //Add support for more components
-        //
+        //Change key to be a single function key
+        //Make the UI look much better (it sucks)
+
         private HierarchyItem selectedGameObject = null;
-        private static GUISkin skin = null;
         private static GUISkin skinUWE = null;
         private TreeNode<HierarchyItem> sceneTree;
         private Vector2 compScrollPos, hierarchyScrollPos, consoleScrollPos;
@@ -53,15 +55,13 @@ namespace BlueFire.Debugger
             Application.logMessageReceived += HandleLog;
             DontDestroyOnLoad(this);
 
-            if (skin == null)
-            {
-                var assets = AssetBundle.LoadFromFile(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace('\\', '/') + "/PrefabDebugger.unity3d");
-                skin = (GUISkin)assets.LoadAsset("PrefabDebugger");
-            }
             if (skinUWE == null)
             {
-                var assets = AssetBundle.LoadFromFile(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace('\\', '/') + "/PrefabDebuggerUWE.unity3d");
-                skinUWE = (GUISkin)assets.LoadAsset("SubnauticaGUI");
+                var assets = AssetBundle.LoadFromFile(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace('\\', '/') + "/PrefabDebugger.unity3d");
+                if (assets.LoadAsset("SubnauticaGUI") != null)
+                {
+                    skinUWE = (GUISkin)assets.LoadAsset("SubnauticaGUI");
+                }
             }
             LoadSceneObjects();
 
@@ -81,6 +81,7 @@ namespace BlueFire.Debugger
 
         public void LateUpdate()
         {
+            //REFACTOR TO BE BASED ON A SINGLE FUNCTION KEY
             if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Alpha1))
             {
                 showHierarchy = !showHierarchy;
@@ -93,24 +94,19 @@ namespace BlueFire.Debugger
             {
                 showConsole = !showConsole;
             }
-            if (Time.deltaTime % 10 == 0)
+            if (showConsole || showComponents || showHierarchy)
             {
-                //Reload the scene hierarchy every 10 frames
-                //May remove if performance intensive
-                //LoadSceneObjects();
+                UWE.Utils.alwaysLockCursor = false;
+                UWE.Utils.lockCursor = false;
             }
         }
 
         public void OnGUI()
         {
             //Set the GUI's style
-            if (useUWEGUI)
+            if (useUWEGUI && skinUWE != null)
             {
                 GUI.skin = skinUWE;
-            }
-            else
-            {
-                GUI.skin = skin;
             }
 
             if (showHierarchy)
@@ -285,7 +281,7 @@ namespace BlueFire.Debugger
                             Vector3 newVal = new Vector3(x, y, z);
                             property.SetValue(comp, newVal, null);
                         }
-                        else if (Enum.GetUnderlyingType(value.GetType()) == typeof(int))
+                        else if (value.GetType() == typeof(Enum) && Enum.GetUnderlyingType(value.GetType()) == typeof(int))
                         {
                             if (GUILayout.Button(value.ToString()))
                             {
@@ -306,21 +302,23 @@ namespace BlueFire.Debugger
                                 }
                             }
                         }
-                        else if (value.GetType() == typeof(Texture))
+                        else if (value.GetType() == typeof(Sprite))
                         {
-                            Texture tex = value as Texture;
-                            GUILayout.TextField(tex.name);
+                            //Exporting coming soon!
+                            Sprite sprite = value as Sprite;
+                            GUILayout.TextField(sprite.texture.name);
                         }
                         else
                         {
-                            //GUILayout.Label(value.ToString());
+                            GUILayout.Label(value.ToString());
                         }
                     }
                     //GUILayout.Label("val:" + property.GetValue(comp, null));
                 }
                 catch (Exception e)
                 {
-                    //GUILayout.Label("Error retrieving");
+                    GUILayout.Label(e.Message);
+                    //UnityEngine.Debug.Log("msg:" + e.Message + "err" + e.Source);
                 }
                 GUILayout.EndHorizontal();
             }

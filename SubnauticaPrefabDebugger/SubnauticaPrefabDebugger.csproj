@@ -7,8 +7,8 @@
     <ProjectGuid>{5BCB97C2-F049-4580-96D7-41CE6F2AE5BA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SubnauticaPrefabDebugger</RootNamespace>
-    <AssemblyName>SubnauticaPrefabDebugger</AssemblyName>
+    <RootNamespace>PrefabDebugger</RootNamespace>
+    <AssemblyName>PrefabDebugger</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -66,6 +66,13 @@
     <Compile Include="Prefab Debugger\Tree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="mod.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="PrefabDebugger.unity3d">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

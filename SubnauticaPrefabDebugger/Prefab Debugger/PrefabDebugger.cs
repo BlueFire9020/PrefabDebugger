@@ -21,22 +21,22 @@ namespace BlueFire.Debugger
         //Raycasting objects to view their components (in game highlighting of the object would be cool)
         //Reordering parents of objects
         //Adding/Removing objects and their components
-        //Show selected in hierarchy
+        //Show selected in hierarchy DONE
         //Add support for more components
         //Change key to be a single function key
         //Make the UI look much better (it sucks)
 
         private HierarchyItem selectedGameObject = null;
-        private static GUISkin skinUWE = null;
+        public GUISkin skinUWE;
         private TreeNode<HierarchyItem> sceneTree;
         private Vector2 compScrollPos, hierarchyScrollPos, consoleScrollPos;
         private int numGameObjects = 0;
         private Rect hierarchyRect = new Rect(100, 25, 500, 600);
         private Rect componentRect = new Rect(600, 25, 500, 600);
-        private Rect consoleRect = new Rect(100, Screen.height - 300, 800, 200);
+        private Rect consoleRect = new Rect(100, Screen.height - 300, 1000, 200);
         private Stack<LogMessage> debugMessages = new Stack<LogMessage>();
         private bool showHierarchy = false, showComponents = false, showConsole = false;
-        private bool showErrors, showLogs, showWarnings, useUWEGUI;
+        private bool showErrors, showLogs, showWarnings;
 
         public static string right_arrow = "▶";
         public static string down_arrow = "▼";
@@ -104,10 +104,7 @@ namespace BlueFire.Debugger
         public void OnGUI()
         {
             //Set the GUI's style
-            if (useUWEGUI && skinUWE != null)
-            {
-                GUI.skin = skinUWE;
-            }
+            GUI.skin = skinUWE;
 
             if (showHierarchy)
             {
@@ -126,12 +123,12 @@ namespace BlueFire.Debugger
         private void ShowHierarchyWindow(int windowID)
         {
             //Ensure that the window can be dragged
-            GUI.DragWindow(new Rect(0, 0, 400, 20));
+            GUI.DragWindow(new Rect(0, 0, 400, 40));
 
             GUILayout.Label((numGameObjects) + " Root Transforms in the Scene");
 
             hierarchyScrollPos = GUILayout.BeginScrollView(
- hierarchyScrollPos, GUILayout.Width(400), GUILayout.Height(300));
+ hierarchyScrollPos, GUILayout.Width(400), GUILayout.Height(600));
             NavigateNodeRecursively(sceneTree);
             GUILayout.EndScrollView();
         }
@@ -139,11 +136,11 @@ namespace BlueFire.Debugger
         private void ShowComponentsWindow(int windowID)
         {
             //Ensure that the window can be dragged
-            GUI.DragWindow(new Rect(0, 0, 400, 20));
+            GUI.DragWindow(new Rect(0, 0, 400, 40));
 
             GUILayout.Label("Components");
             compScrollPos = GUILayout.BeginScrollView(
-         compScrollPos, GUILayout.Width(400), GUILayout.Height(300));
+         compScrollPos, GUILayout.Width(400), GUILayout.Height(600));
             ShowSelectedComponents();
             GUILayout.EndScrollView();
         }
@@ -151,7 +148,7 @@ namespace BlueFire.Debugger
         private void ShowDebugWindow(int windowID)
         {
             //Ensure that the window can be dragged
-            GUI.DragWindow(new Rect(0, 0, 900, 20));
+            GUI.DragWindow(new Rect(0, 0, 900, 40));
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Clear Console", GUILayout.Width(100), GUILayout.ExpandWidth(false)))
@@ -165,7 +162,6 @@ namespace BlueFire.Debugger
             showLogs = GUILayout.Toggle(showLogs, "Show Logs", GUILayout.Width(100), GUILayout.ExpandWidth(false));
             showWarnings = GUILayout.Toggle(showWarnings, "Show Warnings", GUILayout.Width(100), GUILayout.ExpandWidth(false));
             showErrors = GUILayout.Toggle(showErrors, "Show Errors", GUILayout.Width(100), GUILayout.ExpandWidth(false));
-            useUWEGUI = GUILayout.Toggle(useUWEGUI, "Use UWE GUI", GUILayout.Width(110), GUILayout.ExpandWidth(false));
             GUILayout.EndHorizontal();
 
             consoleScrollPos = GUILayout.BeginScrollView(consoleScrollPos, GUILayout.Width(900), GUILayout.Height(200));
@@ -330,38 +326,39 @@ namespace BlueFire.Debugger
             {
                 try
                 {
-                    //UnityEngine.Debug.Log("Testing Item transform");
-                    //UnityEngine.Debug.Log(node.Item.source.name);
-                    if (node.Item.source.transform.childCount > 0)
-                    {
-                    }
                     GUILayout.BeginHorizontal();
-                    GUILayout.Space(30 * depth);
-                    string arrow = "";
+                    string text = "", skin = "TreeItem";
+
+                    for (int i = 0; i < depth; i++)
+                    {
+                        text += "     ";
+                    }
+
                     if (node.Item.source.transform.childCount > 0)
                     {
                         if (node.Item.opened)
                         {
-                            arrow = down_arrow;
+                            text += down_arrow;
                         }
                         else
                         {
-                            arrow = right_arrow;
-                        }
-                        if (GUILayout.Button(arrow, GUILayout.ExpandWidth(false)))
-                        {
-                            node.Item.opened = !node.Item.opened;
-                            UnityEngine.Debug.Log(node.Item.opened);
+                            text += right_arrow;
                         }
                     }
-                    else
+
+                    text += node.Item.source.name;
+
+                    if (selectedGameObject == node.Item)
                     {
-                        GUILayout.Space(30);
+                        skin = "TreeItemSelected";
                     }
-                    if (GUILayout.Button(node.Item.source.name))
+
+                    if (GUILayout.Button(text, skin))
                     {
+                        node.Item.opened = !node.Item.opened;
                         selectedGameObject = node.Item;
                     }
+
                     GUILayout.EndHorizontal();
                 }
                 catch (Exception e)

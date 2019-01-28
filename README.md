@@ -1,5 +1,5 @@
 # SubnauticaPrefabDebugger
- Prefab debugger for Subnautica that allows modders the ability to view in-game prefab hierarchies and their respective components, as well as real time editable values for each component. Still a work in progress, but it does work in game currently, and most of the features function perfectly.
+**Warning: This is a legacy repo and will likely never be updated again.** The updated version is being integrated into QModManager and can be found on the prefab-debugger branch [here](https://github.com/QModManager/QModManager/)
 
 **Upcoming Features**
 
